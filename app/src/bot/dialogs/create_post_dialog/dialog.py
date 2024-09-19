@@ -9,7 +9,8 @@ from aiogram_dialog.widgets.text import Format, Const, Case
 from app.src.bot.dialogs.add_channel_dialog.getters import create_post_getter, channel_itemgetter, manage_menu_getter, \
 	media_menu_getter
 from app.src.bot.dialogs.add_channel_dialog.handlers import on_select_channel, input_post_text, on_notification_clicked, \
-	input_post_media, on_hide_media, on_delete_media
+	input_post_media, on_hide_media, on_delete_media, input_url_buttons, input_emoji_buttons, input_poll_tittle, \
+	input_poll_choices
 from app.src.bot.dialogs.common.buttons import BACK_TO_MANAGE_POST_MENU
 from app.src.bot.dialogs.common.widgets import I18NFormat
 from app.src.bot.states.dialog_states import CreatePostStates
@@ -128,7 +129,7 @@ add_media = Window(
 	Button(
 		text=Case(
 			{
-				True: Const('✅ Скрывать медиа'),встречался бы с ней?
+				True: Const('✅ Скрывать медиа'),
 				False: Const('❌ Скрывать медиа'),
 			},
 			selector='hide_media'
@@ -169,7 +170,7 @@ emoji_buttons = Window(
 add_poll = Window(
 	I18NFormat('add-poll-text'),
 	MessageInput(
-		func=input_poll_text,
+		func=input_poll_tittle,
 	),
 	BACK_TO_MANAGE_POST_MENU,
 	state=CreatePostStates.add_poll
@@ -178,7 +179,7 @@ add_poll = Window(
 poll_choice_window = Window(
 	I18NFormat('poll-choice-text'),
 	MessageInput(
-		func=input_poll_choice,
+		func=input_poll_choices,
 	),
 	BACK_TO_MANAGE_POST_MENU,
 	state=CreatePostStates.poll_choice

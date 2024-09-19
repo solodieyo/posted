@@ -8,3 +8,6 @@ class User(Base):
 
 	id: Mapped[Int16] = mapped_column(primary_key=True)
 	tg_user_id: Mapped[Int64]
+	username: Mapped[str]
+	full_name: Mapped[str]
+

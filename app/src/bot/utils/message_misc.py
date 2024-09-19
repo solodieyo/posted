@@ -1,12 +1,21 @@
+from dataclasses import dataclass
+
+from aiogram.enums import ContentType
 from aiogram.types import Message
 
 
-def get_file_id(message: Message):
+@dataclass
+class FileInfo:
+	file_id: str | None
+	content_type: ContentType | None
+
+
+def get_file_info(message: Message):
 	if message.photo:
-		return message.photo[-1].file_id
+		return FileInfo(message.photo[-1].file_id, ContentType.PHOTO)
 	elif message.document:
-		return message.document.file_id
+		return FileInfo(message.document.file_id, ContentType.DOCUMENT)
 	elif message.video:
-		return message.video.file_id, message.video.file_name
+		return FileInfo(message.video.file_id, ContentType.VIDEO)
 	else:
-		return None
+		return FileInfo(None, None)
