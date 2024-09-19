@@ -1,0 +1,14 @@
+[tg]
+token = ''
+admin_id = 123
+
+[postgres]
+database = "anontg"
+user = "pugach"
+password = "qweqwe"
+host = "127.0.0.1"
+port = 5432
+
+[redis]
+host = "127.0.0.1"
+port = 6379
