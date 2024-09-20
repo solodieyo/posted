@@ -1,11 +1,11 @@
-from multiprocessing.managers import State
-from tkinter import Button
-
 from aiogram_dialog import Window
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Start, Cancel
 
+from app.src.bot.dialogs.add_channel_dialog.getters import get_channel_name
+from app.src.bot.dialogs.add_channel_dialog.handlers import check_channel_permissions
 from app.src.bot.dialogs.common.widgets import I18NFormat
+from app.src.bot.filters.from_channel_filter import ForwardFilter
 from app.src.bot.states.dialog_states import AddChannelStates, CreatePostStates
 
 no_channel_yet = Window(
@@ -13,7 +13,8 @@ no_channel_yet = Window(
 		text='no-channel-yet',
 	),
 	MessageInput(
-		func=,
+		func=check_channel_permissions,
+		filter=ForwardFilter()
 	),
 	state=AddChannelStates.no_channel_yet
 )
@@ -28,7 +29,8 @@ channel_linked = Window(
 		state=CreatePostStates.create_post,
 		id='create_post'
 	),
-	state=AddChannelStates.channel_linked
+	state=AddChannelStates.channel_linked,
+	getter=get_channel_name
 )
 
 new_channel = Window(
@@ -36,7 +38,8 @@ new_channel = Window(
 		text='new-channel',
 	),
 	MessageInput(
-		func=,
+		func=check_channel_permissions,
+		filter=ForwardFilter()
 	),
 	Cancel(),
 	state=AddChannelStates.add_channel

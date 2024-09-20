@@ -11,6 +11,7 @@ CONFIG_PATH = r"/config.toml"
 class Tg:
 	token: str
 	admin_id: int
+	locales_path: str
 
 
 @dataclass

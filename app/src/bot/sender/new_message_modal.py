@@ -17,3 +17,4 @@ class NewMessage:
 	poll_tittle: Optional[str] = None
 	poll_options: Optional[list[str]] = None
 	disable_notification: Optional[bool] = True
+	hide_media: Optional[bool] = False

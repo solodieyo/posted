@@ -3,16 +3,19 @@ from operator import itemgetter
 from aiogram import F
 from aiogram_dialog import Window
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Button, Start, Group, Select, Back, Row, SwitchTo
+from aiogram_dialog.widgets.kbd import Button, Start, Group, Select, Back, Row, SwitchTo, Calendar
 from aiogram_dialog.widgets.text import Format, Const, Case
 
-from app.src.bot.dialogs.add_channel_dialog.getters import create_post_getter, channel_itemgetter, manage_menu_getter, \
-	media_menu_getter
-from app.src.bot.dialogs.add_channel_dialog.handlers import on_select_channel, input_post_text, on_notification_clicked, \
-	input_post_media, on_hide_media, on_delete_media, input_url_buttons, input_emoji_buttons, input_poll_tittle, \
-	input_poll_choices
+
+
 from app.src.bot.dialogs.common.buttons import BACK_TO_MANAGE_POST_MENU
 from app.src.bot.dialogs.common.widgets import I18NFormat
+from app.src.bot.dialogs.create_post_dialog.getters import channel_itemgetter, create_post_getter, manage_menu_getter, \
+	media_menu_getter, get_calendar_state, get_post_delay_text, get_buttons_dates, get_delay_confirm_info
+from app.src.bot.dialogs.create_post_dialog.handlers import on_select_channel, input_post_text, on_notification_clicked, \
+	input_post_media, on_hide_media, on_delete_media, input_url_buttons, input_emoji_buttons, input_poll_tittle, \
+	input_poll_choices, on_show_calendar, on_date_selected, shift_right_date, shift_left_date, input_time_delay, \
+	on_no_confirm_user
 from app.src.bot.states.dialog_states import CreatePostStates
 
 create_main_menu = Window(
@@ -189,10 +192,10 @@ poll_choice_window = Window(
 post_final_menu = Window(
 	I18NFormat('post-final-text'),
 	Row(
-		Button(
+		SwitchTo(
 			text=Const('Отложить'),
 			id='post_delay',
-			on_click=on_post_delay
+			state=CreatePostStates.post_delay
 		),
 		SwitchTo(
 			text=Const('Опубликовать'),
@@ -219,14 +222,86 @@ confirm_post = Window(
 )
 
 delay_post_window = Window(
-	I18NFormat('delay-post-text'),
+	Format(
+		text='{post_delay_text}',
+		when=F['wrong_date'].is_(False)
+	),
+	Format(
+		text='{wrong_date_text}',
+		when=F['wrong_date'].is_(True)
+	),
 	MessageInput(
 		func=input_time_delay,
+	),
+	Row(
+		Button(
+			text=Format('←{left_date}'),
+			id='left_date',
+			on_click=shift_left_date
+		),
+		Button(
+			text=Format('←{current_date}'),
+			id='current_date',
+		),
+		Button(
+			text=Format('←{right_date}'),
+			id='right_date',
+			on_click=shift_right_date
+		),
+		when=F['show_calendar'].is_(False)
+	),
+	Button(
+		text=Case(
+			{
+				True: Const('Показать календарь'),
+				False: Const('Скрыть календарь'),
+			},
+			selector='show_calendar'
+		),
+		id='hide_calendar',
+		on_click=on_show_calendar
+	),
+	Calendar(
+		id='calendar',
+		on_click=on_date_selected,
+		when=F['show_calendar'].is_(False)
 	),
 	SwitchTo(
 		text=Const('⬅️ Назад'),
 		id='__back__',
 		state=CreatePostStates.post_final_menu
 	),
-	state=CreatePostStates.post_delay
+	state=CreatePostStates.post_delay,
+	getter=(
+		get_post_delay_text,
+		get_calendar_state,
+		get_buttons_dates
+	)
+)
+
+confirm_delay_post = Window(
+	Format("Запланировать пост в канал {channel_name} на {selected_date}?"),
+	Button(
+		text=Const('Да запланировать'),
+		id='confirm_delay_post',
+		on_click=on_confirm_delay_post
+	),
+	Button(
+		text=Case(
+			{
+				False: Const('Больше не спрашивать'),
+				True: Const('Спрашивать подтверждение'),
+			},
+			selector='user_confirm'
+		),
+		id='no_confirm_delay_ask',
+		on_click=on_no_confirm_user
+	),
+	SwitchTo(
+		text=Const('⬅️ Назад'),
+		state=CreatePostStates.post_delay,
+		id='__back__to_time_delay__'
+	),
+	state=CreatePostStates.post_delay_confirm,
+	getter=get_delay_confirm_info
 )

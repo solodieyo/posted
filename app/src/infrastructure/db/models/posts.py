@@ -26,3 +26,4 @@ class Post(Base):
 	scheduled_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
 	notification: Mapped[bool] = mapped_column(default=True)
 	hide_media: Media[bool] = mapped_column(default=False)
+	sent: Mapped[bool] = mapped_column(default=False)

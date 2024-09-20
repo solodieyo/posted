@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
-def create_post_keyboard(url_buttons: str, emoji_buttons: str, post_id):
+def create_post_keyboard(url_buttons: str, emoji_buttons: str, post_id: int):
 	builder = InlineKeyboardBuilder()
 	for row in url_buttons.split('\n'):
 		buttons = []

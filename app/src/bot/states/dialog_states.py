@@ -19,6 +19,7 @@ class CreatePostStates(StatesGroup):
 	poll_choice = State()
 	confirm_post = State()
 	post_delay = State()
+	post_delay_confirm = State()
 
 
 class AddChannelStates(StatesGroup):

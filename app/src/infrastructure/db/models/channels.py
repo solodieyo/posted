@@ -10,3 +10,4 @@ class Channel(Base):
 	channel_id: Mapped[Int64] = mapped_column(nullable=False)
 	owner_channel_id: Mapped[Int16] = mapped_column(ForeignKey('users.id'), nullable=False)
 	channel_name: Mapped[str] = mapped_column(nullable=False)
+	channel_username: Mapped[str] = mapped_column(nullable=True)

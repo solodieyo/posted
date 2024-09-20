@@ -1,13 +1,26 @@
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
-from aiogram_dialog import DialogManager
+from aiogram_dialog import DialogManager, StartMode
+from dishka import FromDishka
+from dishka.integrations.aiogram import inject
 
-from app.src.bot.states.dialog_states import CreatePostStates
+from app.src.bot.states.dialog_states import CreatePostStates, AddChannelStates
+from app.src.infrastructure.db.repositories import GeneralRepository
 
 router = Router()
 
 
 @router.message(Command('create'))
-async def start_command(message: Message, dialog_manager: DialogManager):
-	await dialog_manager.start(state=CreatePostStates.create_post)
+@inject
+async def start_command(
+	message: Message,
+	dialog_manager: DialogManager,
+	repository: FromDishka[GeneralRepository]
+):
+	user_have_channels = await repository.channel.get_users_channels()
+	if user_have_channels:
+		await dialog_manager.start(state=CreatePostStates.create_post, mode=StartMode.RESET_STACK)
+
+	else:
+		await dialog_manager.start(state=AddChannelStates.no_channel_yet, mode=StartMode.RESET_STACK)

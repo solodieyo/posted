@@ -18,7 +18,7 @@ async def _send_text(bot: Bot, new_message: NewMessage) -> Message:
 		text=new_message.text,
 		disable_notification=new_message.disable_notification,
 		reply_markup=new_message.reply_markup,
-		parse_mode=new_message.parse_mode
+		parse_mode=new_message.parse_mode,
 	)
 
 	if new_message.poll_tittle:
@@ -39,13 +39,13 @@ async def _send_media(bot: Bot, new_message: NewMessage) -> Message:
 	method = getattr(bot, SEND_METHODS[new_message.media_content_type], None)
 	if not method:
 		raise ValueError(f"ContentType {new_message.media_content_type} is not supported")
-
 	message = await method(
 		new_message.chat_id,
 		new_message.media_id,
 		caption=new_message.text,
 		reply_markup=new_message.reply_markup,
-		parse_mode=new_message.parse_mode
+		parse_mode=new_message.parse_mode,
+		has_spoiler=new_message.hide_media
 	)
 
 	if new_message.poll_tittle:
