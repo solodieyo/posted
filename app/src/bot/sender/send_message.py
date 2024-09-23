@@ -2,10 +2,49 @@ from aiogram import Bot
 from aiogram.types import Message
 from aiogram_dialog.manager.message_manager import SEND_METHODS
 
+from app.src.bot.keyboards.post_keyboard import create_post_keyboard
 from app.src.bot.sender.new_message_modal import NewMessage
+from app.src.factory.reaction_factory import create_reactions
+from app.src.infrastructure.db.models import Post
+from app.src.infrastructure.db.repositories import GeneralRepository
 
 
-async def send_message(bot: Bot, new_message: NewMessage) -> Message:
+async def send_message(
+	bot: Bot,
+	post: Post,
+	repository: GeneralRepository
+) -> Message:
+	reactions = create_reactions(
+		emoji_buttons=post.emoji_buttons,
+		post_id=post.id,
+		channel_id=post.channel_id
+	)
+	keyboard = create_post_keyboard(
+		emoji_buttons=reactions,
+		url_buttons=post.url_buttons,
+	)
+	async with bot:
+		message = await _send_message(
+			bot=bot,
+			new_message=NewMessage(
+				chat_id=post.channel_id,
+				text=post.text,
+				reply_markup=keyboard,
+				media_id=post.media_id,
+				media_content_type=post.media_content_type,
+				hide_media=post.hide_media,
+				disable_notification=post.notification
+			)
+		)
+	await repository.reactions.add_reactions(
+		reactions=reactions,
+		message_id=message.message_id
+	)
+	await repository.post.message_sent(post_id=post.id)
+	return message
+
+
+async def _send_message(bot: Bot, new_message: NewMessage) -> Message:
 	if new_message.media_id:
 		return await _send_media(bot, new_message)
 	else:
