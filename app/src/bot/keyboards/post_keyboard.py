@@ -1,8 +1,14 @@
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from app.src.factory.callback_factory.emoji_callback import EmojiCallback
+from app.src.infrastructure.db.models import Reaction
 
-def create_post_keyboard(url_buttons: str, emoji_buttons: str, post_id: int):
+
+def create_post_keyboard(
+	url_buttons: str,
+	emoji_buttons: list[Reaction],
+):
 	builder = InlineKeyboardBuilder()
 	for row in url_buttons.split('\n'):
 		buttons = []
@@ -12,8 +18,15 @@ def create_post_keyboard(url_buttons: str, emoji_buttons: str, post_id: int):
 		builder.row(*buttons, width=len(buttons))
 
 	buttons = []
-	for emoji in emoji_buttons.split(','):
-		buttons.append(InlineKeyboardButton(text=emoji, callback_data=f"emoji_{emoji}_0"))
+	for reaction in emoji_buttons:
+		buttons.append(InlineKeyboardButton(
+			text=reaction.emoji,
+			callback_data=EmojiCallback(
+				emoji=reaction.emoji,
+				post_id=reaction.post_id,
+				reaction_id=reaction.id
+			).pack())
+		)
 
 	builder.row(*buttons, width=len(buttons))
 	return builder.as_markup()

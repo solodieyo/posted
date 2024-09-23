@@ -17,10 +17,26 @@ async def create_post_getter(
 	, **_
 ):
 	channels: list[Channel] = await repository.channel.get_users_channels()
+	if len(channels) == 1:
+		dialog_manager.dialog_data.update(
+			channel_id=channels[0].id,
+			channel_name=channels[0].channel_name,
+			channel_username=channels[0].channel_username
+		)
 
 	return {
 		'channels': channels,
-		'one_channel': True if len(channels) == 1 else False
+		'one_channel': True if len(channels) == 1 else False,
+		'channel_name': channels[0].channel_name
+	}
+
+
+async def getter_channel_name(
+	dialog_manager: DialogManager,
+	**_
+):
+	return {
+		"channel_name": dialog_manager.dialog_data['channel_name']
 	}
 
 

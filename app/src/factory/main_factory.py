@@ -46,7 +46,7 @@ class DpProvider(Provider):
 		return dp
 
 	@provide(scope=Scope.APP)
-	def get_redis(self, config: AppConfig):
+	def get_redis(self, config: AppConfig) -> Redis:
 		return Redis(
 			host=config.redis.host,
 			port=config.redis.port,
@@ -54,7 +54,7 @@ class DpProvider(Provider):
 		)
 
 	@provide(scope=Scope.APP)
-	def get_storage(self, redis: Redis):
+	def get_storage(self, redis: Redis) -> BaseStorage:
 		return RedisStorage(
 			redis=redis,
 			key_builder=DefaultKeyBuilder(

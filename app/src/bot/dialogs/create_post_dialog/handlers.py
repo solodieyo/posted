@@ -17,13 +17,21 @@ from app.src.infrastructure.db.models import User
 from app.src.infrastructure.db.repositories import GeneralRepository
 
 
+@inject
 async def on_select_channel(
 	_,
 	__,
 	dialog_manager: DialogManager,
-	selected_item: int
+	selected_item: int,
+	repository: FromDishka[GeneralRepository]
 ):
-	dialog_manager.dialog_data['channel_id'] = selected_item
+	channel = await repository.channel.get_chanel_by_id(channel_id=selected_item)
+	dialog_manager.dialog_data.update(
+		channel_id=channel.id,
+		channel_name=channel.channel_name,
+		channel_username=channel.channel_username
+	)
+
 	await dialog_manager.switch_to(state=CreatePostStates.create_post)
 
 

@@ -1,21 +1,40 @@
-from operator import itemgetter
-
 from aiogram import F
 from aiogram_dialog import Window
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Start, Group, Select, Back, Row, SwitchTo, Calendar
 from aiogram_dialog.widgets.text import Format, Const, Case
 
-
-
 from app.src.bot.dialogs.common.buttons import BACK_TO_MANAGE_POST_MENU
 from app.src.bot.dialogs.common.widgets import I18NFormat
-from app.src.bot.dialogs.create_post_dialog.getters import channel_itemgetter, create_post_getter, manage_menu_getter, \
-	media_menu_getter, get_calendar_state, get_post_delay_text, get_buttons_dates, get_delay_confirm_info
-from app.src.bot.dialogs.create_post_dialog.handlers import on_select_channel, input_post_text, on_notification_clicked, \
-	input_post_media, on_hide_media, on_delete_media, input_url_buttons, input_emoji_buttons, input_poll_tittle, \
-	input_poll_choices, on_show_calendar, on_date_selected, shift_right_date, shift_left_date, input_time_delay, \
-	on_no_confirm_user
+from app.src.bot.dialogs.create_post_dialog.getters import (
+	channel_itemgetter,
+	create_post_getter,
+	manage_menu_getter,
+	media_menu_getter,
+	get_calendar_state,
+	get_post_delay_text,
+	get_buttons_dates,
+	get_delay_confirm_info, getter_channel_name
+)
+from app.src.bot.dialogs.create_post_dialog.handlers import (
+	on_select_channel,
+	input_post_text,
+	on_notification_clicked,
+	input_post_media,
+	on_hide_media,
+	on_delete_media,
+	input_url_buttons,
+	input_emoji_buttons,
+	input_poll_tittle,
+	input_poll_choices,
+	on_show_calendar,
+	on_date_selected,
+	shift_right_date,
+	shift_left_date,
+	input_time_delay,
+	on_no_confirm_user,
+	on_confirm_delay_post,
+)
 from app.src.bot.states.dialog_states import CreatePostStates
 
 create_main_menu = Window(
@@ -40,7 +59,7 @@ create_main_menu = Window(
 		when=F['one_channel'].is_(False)
 	),
 	Start(
-		text=I18NFormat('add-channel'),
+		text=Const(" ➕ Добавить новый канал"),
 		state=CreatePostStates.add_channel,
 		id='add_channel'
 	),
@@ -53,7 +72,7 @@ create_main_menu = Window(
 
 selected_channel_window = Window(
 	I18NFormat(
-		text='selected-channel',
+		text='one-channel',
 	),
 	Back(
 		text=Const('Выбрать другой канал')
@@ -61,7 +80,8 @@ selected_channel_window = Window(
 	MessageInput(
 		func=input_post_text,
 	),
-	state=CreatePostStates.selected_channel
+	state=CreatePostStates.selected_channel,
+	getter=getter_channel_name
 )
 
 post_manage_menu = Window(
@@ -113,7 +133,6 @@ post_manage_menu = Window(
 	getter=manage_menu_getter
 )
 
-
 change_post_text = Window(
 	Const('Отправьте новый текст для поста'),
 	MessageInput(
@@ -122,7 +141,6 @@ change_post_text = Window(
 	BACK_TO_MANAGE_POST_MENU,
 	state=CreatePostStates.change_post_text
 )
-
 
 add_media = Window(
 	I18NFormat('add-media-text'),
@@ -169,7 +187,6 @@ emoji_buttons = Window(
 	state=CreatePostStates.emoji_buttons
 )
 
-
 add_poll = Window(
 	I18NFormat('add-poll-text'),
 	MessageInput(
@@ -188,7 +205,6 @@ poll_choice_window = Window(
 	state=CreatePostStates.poll_choice
 )
 
-
 post_final_menu = Window(
 	I18NFormat('post-final-text'),
 	Row(
@@ -204,7 +220,8 @@ post_final_menu = Window(
 		),
 	),
 	BACK_TO_MANAGE_POST_MENU,
-	state=CreatePostStates.post_final_menu
+	state=CreatePostStates.post_final_menu,
+	getter=getter_channel_name
 )
 
 confirm_post = Window(
