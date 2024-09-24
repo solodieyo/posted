@@ -12,6 +12,7 @@ def create_post(
 ) -> Post:
 	return Post(
 		channel_id=data['channel_id'],
+		channel_tg_id=data['channel_tg_id'],
 		owner_user_id=user_id,
 		text=data.get('post_text', '.'),
 		notification=data.get('notification', False),

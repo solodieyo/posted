@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Optional
 
 from aiogram.enums import ContentType
-from aiogram_dialog.widgets.media import Media
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -14,6 +13,7 @@ class Post(Base):
 
 	id: Mapped[Int16] = mapped_column(primary_key=True, autoincrement=True)
 	channel_id: Mapped[Int16] = mapped_column(ForeignKey('channels.id'), nullable=False)
+	channel_tg_id: Mapped[Int64] = mapped_column(nullable=False)
 	owner_user_id: Mapped[Int64] = mapped_column(ForeignKey('users.id'))
 	text: Mapped[str] = mapped_column(nullable=False)
 	media_id: Mapped[Optional[str]] = mapped_column(nullable=True)
@@ -25,5 +25,5 @@ class Post(Base):
 	scheduled: Mapped[bool] = mapped_column(nullable=False, default=False)
 	scheduled_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
 	notification: Mapped[bool] = mapped_column(default=True)
-	hide_media: Media[bool] = mapped_column(default=False)
+	hide_media: Mapped[bool] = mapped_column(default=False)
 	sent: Mapped[bool] = mapped_column(default=False)

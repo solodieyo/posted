@@ -1,4 +1,4 @@
-from aiogram_dialog import Window
+from aiogram_dialog import Window, Dialog
 from aiogram_dialog.widgets.kbd import Start
 from aiogram_dialog.widgets.text import Const
 
@@ -14,3 +14,6 @@ main_window = Window(
 	state=MainMenuState.main_menu
 )
 
+main_dialog = Dialog(
+	main_window
+)

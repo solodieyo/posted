@@ -13,21 +13,25 @@ from app.src.infrastructure.db.repositories import GeneralRepository
 @inject
 async def create_post_getter(
 	dialog_manager: DialogManager,
-	repository: FromDishka[GeneralRepository]
-	, **_
+	repository: FromDishka[GeneralRepository],
+	user: User,
+	**_
 ):
-	channels: list[Channel] = await repository.channel.get_users_channels()
+	channels: list[Channel] = await repository.channel.get_users_channels(user_id=user.id)
 	if len(channels) == 1:
 		dialog_manager.dialog_data.update(
 			channel_id=channels[0].id,
 			channel_name=channels[0].channel_name,
-			channel_username=channels[0].channel_username
+			channel_username=channels[0].channel_username,
+			channel_tg_id=channels[0].channel_id
 		)
-
+		return {
+			"one_channel": True,
+			"channel_name": channels[0].channel_name
+		}
 	return {
 		'channels': channels,
 		'one_channel': True if len(channels) == 1 else False,
-		'channel_name': channels[0].channel_name
 	}
 
 
@@ -46,7 +50,7 @@ def channel_itemgetter(channel: Channel) -> int:
 
 async def manage_menu_getter(dialog_manager: DialogManager, **_):
 	return {
-		'notification': dialog_manager.dialog_data.get('notification', True),
+		'notification': dialog_manager.dialog_data.get('notification', False),
 		'post_text': dialog_manager.dialog_data.get('post_text', '...')
 	}
 

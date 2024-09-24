@@ -8,14 +8,22 @@ class ReactionsRepository(BaseRepository):
 
 	async def add_reactions(
 		self,
-		reactions: list[Reaction],
-		message_id: int,
-
+		emoji_buttons: str,
+		post_id: int,
+		channel_id: int
 	):
-		for reaction in reactions:
-			reaction.message_id = message_id
+		reactions = []
+		for emoji in emoji_buttons.split(','):
+			reaction = Reaction(
+				emoji=emoji,
+				post_id=post_id,
+				channel_id=channel_id
+			)
 			self.session.add(reaction)
+			await self.session.flush()
+			reactions.append(reaction)
 		await self.session.commit()
+		return reactions
 
 	async def add_user_reaction(
 		self,
@@ -33,7 +41,6 @@ class ReactionsRepository(BaseRepository):
 				await self._decrease_reaction_count(reaction_id)
 				await self._delete_user_reaction(user_id, post_id, reaction_id)
 				await self.session.commit()
-				return
 			else:
 				await self._change_reaction(
 					user_reaction, reaction_id
@@ -47,8 +54,9 @@ class ReactionsRepository(BaseRepository):
 				post_id=post_id
 			)
 			self.session.add(user_reaction)
-
 		await self.session.commit()
+		reactions = await self.get_post_reactions(post_id=post_id)
+		return reactions
 
 	async def _get_user_reaction(self, user_id: int, post_id: int) -> UserReaction | None:
 		return await self.session.scalar(
@@ -62,14 +70,14 @@ class ReactionsRepository(BaseRepository):
 		await self.session.execute(
 			update(Reaction)
 			.where(Reaction.id == reaction_id)
-			.values(count=Reaction.count_reaction - 1)
+			.values(count_reaction=Reaction.count_reaction - 1)
 		)
 
 	async def _inscribe_reaction_count(self, reaction_id: int):
 		await self.session.execute(
 			update(Reaction)
 			.where(Reaction.id == reaction_id)
-			.values(count=Reaction.count_reaction + 1)
+			.values(count_reaction=Reaction.count_reaction + 1)
 		)
 
 	async def _delete_user_reaction(self, user_id: int, post_id: int, reaction_id: int):

@@ -4,8 +4,7 @@ from aiogram_dialog.manager.message_manager import SEND_METHODS
 
 from app.src.bot.keyboards.post_keyboard import create_post_keyboard
 from app.src.bot.sender.new_message_modal import NewMessage
-from app.src.factory.reaction_factory import create_reactions
-from app.src.infrastructure.db.models import Post
+from app.src.infrastructure.db.models import Post, Reaction
 from app.src.infrastructure.db.repositories import GeneralRepository
 
 
@@ -14,7 +13,7 @@ async def send_message(
 	post: Post,
 	repository: GeneralRepository
 ) -> Message:
-	reactions = create_reactions(
+	reactions: list[Reaction] = await repository.reactions.add_reactions(
 		emoji_buttons=post.emoji_buttons,
 		post_id=post.id,
 		channel_id=post.channel_id
@@ -27,7 +26,7 @@ async def send_message(
 		message = await _send_message(
 			bot=bot,
 			new_message=NewMessage(
-				chat_id=post.channel_id,
+				chat_id=post.channel_tg_id,
 				text=post.text,
 				reply_markup=keyboard,
 				media_id=post.media_id,
@@ -36,10 +35,7 @@ async def send_message(
 				disable_notification=post.notification
 			)
 		)
-	await repository.reactions.add_reactions(
-		reactions=reactions,
-		message_id=message.message_id
-	)
+
 	await repository.post.message_sent(post_id=post.id)
 	return message
 

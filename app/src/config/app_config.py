@@ -3,15 +3,15 @@ from dataclasses import dataclass
 from sqlalchemy import URL
 
 
-LOCALES_PATH = ''
-CONFIG_PATH = r"/config.toml"
+LOCALES_PATH = r'C:\Users\solo\PycharmProjects\posted\app\translations'
+CONFIG_PATH = r"config.toml"
 
 
 @dataclass
 class Tg:
 	token: str
 	admin_id: int
-	locales_path: str
+	locales_path: str = LOCALES_PATH
 
 
 @dataclass

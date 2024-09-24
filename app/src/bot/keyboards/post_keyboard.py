@@ -6,27 +6,29 @@ from app.src.infrastructure.db.models import Reaction
 
 
 def create_post_keyboard(
-	url_buttons: str,
-	emoji_buttons: list[Reaction],
+	url_buttons: str | None,
+	emoji_buttons: list[Reaction] | None,
 ):
 	builder = InlineKeyboardBuilder()
-	for row in url_buttons.split('\n'):
+	if url_buttons:
+		for row in url_buttons.split('\n'):
+			buttons = []
+			for button in row.split(' | '):
+				tittle, url = button.split(' - ')
+				buttons.append(InlineKeyboardButton(text=tittle, url=url))
+			builder.row(*buttons, width=len(buttons))
+
+	if emoji_buttons:
 		buttons = []
-		for button in row.split(' | '):
-			tittle, url = button.split(' - ')
-			buttons.append(InlineKeyboardButton(text=tittle, url=url))
+		for reaction in emoji_buttons:
+			text = f'{reaction.emoji} - {reaction.count_reaction}' if reaction.count_reaction > 0 else reaction.emoji
+			buttons.append(InlineKeyboardButton(
+				text=text,
+				callback_data=EmojiCallback(
+					emoji=reaction.emoji,
+					post_id=reaction.post_id,
+					reaction_id=reaction.id
+				).pack())
+			)
 		builder.row(*buttons, width=len(buttons))
-
-	buttons = []
-	for reaction in emoji_buttons:
-		buttons.append(InlineKeyboardButton(
-			text=reaction.emoji,
-			callback_data=EmojiCallback(
-				emoji=reaction.emoji,
-				post_id=reaction.post_id,
-				reaction_id=reaction.id
-			).pack())
-		)
-
-	builder.row(*buttons, width=len(buttons))
 	return builder.as_markup()

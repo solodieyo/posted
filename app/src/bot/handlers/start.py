@@ -9,6 +9,10 @@ router = Router()
 
 
 @router.message(CommandStart())
-async def start_command(message: Message, dialog_manager: DialogManager):
-	await dialog_manager.start(state=MainMenuState.main_menu, mode=StartMode.RESET_STACK)
+async def start_command(message: Message):
+	await message.delete()
+	await message.answer(
+		text='<b>Создание поста</b> - /create\n\n'
+			 '<b>Создание голосования</b> - /poll\n',
+	)
 

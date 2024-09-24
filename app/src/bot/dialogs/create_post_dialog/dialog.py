@@ -1,5 +1,5 @@
 from aiogram import F
-from aiogram_dialog import Window
+from aiogram_dialog import Window, Dialog
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Start, Group, Select, Back, Row, SwitchTo, Calendar
 from aiogram_dialog.widgets.text import Format, Const, Case
@@ -33,9 +33,9 @@ from app.src.bot.dialogs.create_post_dialog.handlers import (
 	shift_left_date,
 	input_time_delay,
 	on_no_confirm_user,
-	on_confirm_delay_post,
+	on_confirm_delay_post, post_confirm,
 )
-from app.src.bot.states.dialog_states import CreatePostStates
+from app.src.bot.states.dialog_states import CreatePostStates, AddChannelStates
 
 create_main_menu = Window(
 	I18NFormat(
@@ -48,7 +48,7 @@ create_main_menu = Window(
 	),
 	Group(
 		Select(
-			text=Format('{item[1]}'),
+			text=Format('{item.channel_name}'),
 			id='channel_select',
 			items='channels',
 			item_id_getter=channel_itemgetter,
@@ -60,8 +60,8 @@ create_main_menu = Window(
 	),
 	Start(
 		text=Const(" ➕ Добавить новый канал"),
-		state=CreatePostStates.add_channel,
-		id='add_channel'
+		state=AddChannelStates.add_channel,
+		id='add_channel',
 	),
 	MessageInput(
 		func=input_post_text,
@@ -86,12 +86,12 @@ selected_channel_window = Window(
 
 post_manage_menu = Window(
 	Format('{post_text}'),
-	Start(
+	SwitchTo(
 		text=Const('Изменить текст'),
 		state=CreatePostStates.change_post_text,
 		id='change_post_text'
 	),
-	Start(
+	SwitchTo(
 		text=Const('Добавить медиа'),
 		state=CreatePostStates.add_media,
 		id='add_media'
@@ -100,8 +100,8 @@ post_manage_menu = Window(
 		Button(
 			text=Case(
 				texts={
-					True: Const('🔔'),
-					False: Const('🔕'),
+					False: Const('🔔'),
+					True: Const('🔕'),
 				},
 				selector='notification'
 			),
@@ -114,17 +114,17 @@ post_manage_menu = Window(
 			state=CreatePostStates.url_buttons
 		)
 	),
-	Start(
+	SwitchTo(
 		text=Const('Добавить голосование'),
 		id='add_poll',
 		state=CreatePostStates.add_poll
 	),
-	Start(
+	SwitchTo(
 		text=Const('Emoji-кнопки'),
 		id='emoji_buttons',
 		state=CreatePostStates.emoji_buttons
 	),
-	Start(
+	SwitchTo(
 		text=Const('Далее ➡️'),
 		id='pre_post_menu',
 		state=CreatePostStates.post_final_menu
@@ -138,7 +138,11 @@ change_post_text = Window(
 	MessageInput(
 		func=input_post_text,
 	),
-	BACK_TO_MANAGE_POST_MENU,
+	SwitchTo(
+		text=Const('⬅️ Назад'),
+		id='__back__',
+		state=CreatePostStates.post_manage_menu
+	),
 	state=CreatePostStates.change_post_text
 )
 
@@ -175,7 +179,8 @@ url_buttons = Window(
 		func=input_url_buttons,
 	),
 	BACK_TO_MANAGE_POST_MENU,
-	state=CreatePostStates.url_buttons
+	state=CreatePostStates.url_buttons,
+	disable_web_page_preview=True
 )
 
 emoji_buttons = Window(
@@ -228,7 +233,8 @@ confirm_post = Window(
 	Const('Вы уверены, что хотите опубликовать пост?'),
 	Button(
 		text=Const('✅ Опубликовать'),
-		id='post_confirm'
+		id='post_confirm',
+		on_click=post_confirm
 	),
 	SwitchTo(
 		text=Const('⬅️ Назад'),
@@ -321,4 +327,20 @@ confirm_delay_post = Window(
 	),
 	state=CreatePostStates.post_delay_confirm,
 	getter=get_delay_confirm_info
+)
+
+create_post_dialog = Dialog(
+	create_main_menu,
+	post_manage_menu,
+	selected_channel_window,
+	change_post_text,
+	add_media,
+	url_buttons,
+	emoji_buttons,
+	add_poll,
+	poll_choice_window,
+	post_final_menu,
+	confirm_post,
+	delay_post_window,
+	confirm_delay_post
 )

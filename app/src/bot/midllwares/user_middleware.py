@@ -18,7 +18,7 @@ class UserMiddleware(BaseMiddleware):
 		event: Union[Message, CallbackQuery],
 		data: dict[str, Any],
 	):
-		async with self.dishka as req_dishka:
+		async with self.dishka() as req_dishka:
 			repo = await req_dishka.get(GeneralRepository)
 
 			user = await repo.user.get_or_create_user(

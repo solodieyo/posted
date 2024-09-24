@@ -25,10 +25,10 @@ class ChannelRepository(BaseRepository):
 		await self.session.commit()
 
 	async def get_users_channels(self, user_id: int):
-		res = await self.session.execute(
+		res = await self.session.scalars(
 			select(Channel).where(Channel.owner_channel_id == user_id)
 		)
-		return res.fetchall()
+		return res.all()
 
 	async def exists_channels_user(self, user_id: int):
 		res: Union[Channel, None] = await self.session.scalar(
@@ -40,6 +40,12 @@ class ChannelRepository(BaseRepository):
 
 	async def get_chanel_by_id(self, channel_id: int):
 		result: Channel = await self.session.scalar(
-			select(Channel).where(Channel.channel_id == channel_id)
+			select(Channel).where(Channel.id == channel_id)
+		)
+		return result
+
+	async def get_channel_by_tg_id(self, channel_tg_id: int):
+		result: Channel = await self.session.scalar(
+			select(Channel).where(Channel.channel_id == channel_tg_id)
 		)
 		return result

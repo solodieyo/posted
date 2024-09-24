@@ -37,7 +37,7 @@ class PostRepository(BaseRepository):
 		)
 
 	async def get_url_buttons(self, post_id):
-		result = await self.session.execute(
+		result = await self.session.scalar(
 			select(Post.url_buttons).where(Post.id == post_id)
 		)
-		return result.fetchone()
+		return result

@@ -29,7 +29,7 @@ async def schedule_post(
 	await delay_post.schedule_by_time(
 		redis_source=redis_source,
 		scheduled_at=post.scheduled_at,
-		post_id=post.id
+		post_id=post.id,
 	)
 
 	await bot.send_message(

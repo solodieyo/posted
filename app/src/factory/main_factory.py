@@ -4,11 +4,13 @@ from aiogram.fsm.storage.redis import RedisStorage
 from redis.asyncio import Redis
 from dishka import AsyncContainer, make_async_container, Provider, Scope, from_context, provide
 
+from app.src.bot.dialogs import include_dialogs
 from app.src.bot.handlers import setup_routers
 from app.src.config import AppConfig
 from app.src.config.load_config import load_config
 from app.src.factory.setup_middlewares import _setup_outer_middlewares
 from app.src.infrastructure.di.bot import BotProvider
+from app.src.infrastructure.di.broker import RedisSourceProvider
 from app.src.infrastructure.di.db import DbProvider
 
 
@@ -19,6 +21,8 @@ def create_dishka(config: AppConfig) -> AsyncContainer:
 
 def get_providers():
 	return [
+		DpProvider(),
+		RedisSourceProvider(),
 		BotProvider(),
 		DbProvider(),
 	]
@@ -37,7 +41,10 @@ class DpProvider(Provider):
 		config: AppConfig,
 	) -> Dispatcher:
 		dp = Dispatcher(storage=storage)
-		dp.include_routers(setup_routers())
+		dp.include_routers(
+			setup_routers(),
+			include_dialogs()
+		)
 		_setup_outer_middlewares(
 			dishka=dishka,
 			dispatcher=dp,
