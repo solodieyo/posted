@@ -2,13 +2,14 @@ from datetime import date, datetime, timedelta
 
 from aiogram import Bot
 from aiogram.types import Message
-from aiogram_dialog import DialogManager
+from aiogram_dialog import DialogManager, ShowMode
 from aiogram_dialog.widgets.input import MessageInput
 from dishka import FromDishka
 from dishka.integrations.aiogram_dialog import inject
 from taskiq_redis import RedisScheduleSource
 
 from app.src.bot.dialogs.common.post_delay import schedule_post
+from app.src.bot.sender.send_message import send_message
 from app.src.bot.states.dialog_states import CreatePostStates
 from app.src.bot.utils.message_misc import get_file_info, FileInfo
 from app.src.bot.utils.parse_time import parse_user_time
@@ -29,7 +30,8 @@ async def on_select_channel(
 	dialog_manager.dialog_data.update(
 		channel_id=channel.id,
 		channel_name=channel.channel_name,
-		channel_username=channel.channel_username
+		channel_username=channel.channel_username,
+		channel_tg_id=channel.channel_id
 	)
 
 	await dialog_manager.switch_to(state=CreatePostStates.create_post)
@@ -40,6 +42,7 @@ async def input_post_text(
 	widget: MessageInput,
 	dialog_manager: DialogManager
 ):
+	dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
 	dialog_manager.dialog_data['post_text'] = message.text
 	await dialog_manager.switch_to(state=CreatePostStates.post_manage_menu)
 
@@ -49,7 +52,7 @@ async def on_notification_clicked(
 	__,
 	dialog_manager: DialogManager
 ):
-	notification = dialog_manager.dialog_data.get('notification', True),
+	notification = dialog_manager.dialog_data.get('notification', False)
 	dialog_manager.dialog_data['notification'] = not notification
 
 
@@ -58,6 +61,7 @@ async def input_post_media(
 	__,
 	dialog_manager: DialogManager
 ):
+	dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
 	file_info: FileInfo = get_file_info(message)
 	dialog_manager.dialog_data.update(
 		has_media=True,
@@ -89,22 +93,26 @@ async def input_url_buttons(
 	__,
 	dialog_manager: DialogManager
 ):
+	dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
 	dialog_manager.dialog_data['url_buttons'] = message.text
 	await dialog_manager.switch_to(state=CreatePostStates.post_manage_menu)
 
 
 async def input_emoji_buttons(message: Message, __, dialog_manager: DialogManager):
 	dialog_manager.dialog_data['emoji_buttons'] = message.text
+	dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
 	await dialog_manager.switch_to(state=CreatePostStates.post_manage_menu)
 
 
 async def input_poll_tittle(message: Message, __, dialog_manager: DialogManager):
 	dialog_manager.dialog_data['poll_tittle'] = message.text
+	dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
 	await dialog_manager.switch_to(state=CreatePostStates.post_manage_menu)
 
 
 async def input_poll_choices(message: Message, __, dialog_manager: DialogManager):
 	dialog_manager.dialog_data['poll_choices'] = message.text
+	dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
 	await dialog_manager.switch_to(state=CreatePostStates.post_manage_menu)
 
 
@@ -120,8 +128,8 @@ async def post_confirm(
 		data=dialog_manager.dialog_data,
 		user_id=dialog_manager.middleware_data['user'].id,
 	)
-
 	await repository.post.create_post(post=post)
+	await send_message(bot=bot, repository=repository, post=post)
 
 
 async def on_show_calendar(
@@ -141,6 +149,7 @@ async def input_time_delay(
 	redis_source: FromDishka[RedisScheduleSource],
 	bot: FromDishka[Bot]
 ):
+	dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
 	user: User = dialog_manager.middleware_data['user']
 
 	shifted_date = dialog_manager.dialog_data.get('shifted_date', 0)

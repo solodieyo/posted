@@ -1,9 +1,10 @@
 [tg]
-token = ''
-admin_id = 123
+token = '7844956846:AAG1qbeUbRCaY5mUAvK4QUuGx6voW5ZO2wQ'
+admin_id = 1835906223
+
 
 [postgres]
-database = "anontg"
+database = "posted"
 user = "pugach"
 password = "qweqwe"
 host = "127.0.0.1"
