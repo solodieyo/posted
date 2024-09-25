@@ -1,5 +1,6 @@
 from sqlalchemy import select, and_, func, update
 
+from app.src.bot.enums.message_type import MessageType
 from app.src.infrastructure.db.models import Post
 from app.src.infrastructure.db.repositories import BaseRepository
 
@@ -16,9 +17,24 @@ class PostRepository(BaseRepository):
 			.where(
 				and_(
 					Post.channel_id == channel_id,
-					func.date(Post.scheduled_at) == date
+					func.date(Post.scheduled_at) == date,
+					Post.post_type == MessageType.message,
 				)
-			)
+			).limit(10)
+		)
+		return posts.all()
+
+	async def get_poll_per_date(self, channel_id, date):
+		posts = await self.session.scalars(
+			select(Post)
+			.where(
+				and_(
+					Post.channel_id == channel_id,
+					func.date(Post.scheduled_at) == date,
+					Post.sent.is_(False),
+					Post.post_type == MessageType.poll,
+				)
+			).limit(10)
 		)
 		return posts.all()
 

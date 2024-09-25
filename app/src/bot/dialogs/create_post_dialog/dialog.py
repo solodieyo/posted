@@ -1,4 +1,5 @@
 from aiogram import F
+from aiogram.enums import ContentType
 from aiogram_dialog import Window, Dialog
 from aiogram_dialog.widgets.input import MessageInput
 from aiogram_dialog.widgets.kbd import Button, Start, Group, Select, Back, Row, SwitchTo, Calendar
@@ -36,7 +37,7 @@ from app.src.bot.dialogs.create_post_dialog.handlers import (
 	input_url_buttons,
 	input_emoji_buttons,
 	input_time_delay,
-	post_confirm,
+	post_confirm, insert_post_type,
 )
 from app.src.bot.states.dialog_states import CreatePostStates, AddChannelStates
 
@@ -77,8 +78,10 @@ selected_channel_window = Window(
 	I18NFormat(
 		text='one-channel',
 	),
-	Back(
-		text=Const('Выбрать другой канал')
+	SwitchTo(
+		state=CreatePostStates.create_post,
+		text=Const('Выбрать другой канал'),
+		id='change_channel'
 	),
 	MessageInput(
 		func=input_post_text,
@@ -118,11 +121,6 @@ post_manage_menu = Window(
 		)
 	),
 	SwitchTo(
-		text=Const('Добавить голосование'),
-		id='add_poll',
-		state=CreatePostStates.add_poll
-	),
-	SwitchTo(
 		text=Const('Emoji-кнопки'),
 		id='emoji_buttons',
 		state=CreatePostStates.emoji_buttons
@@ -130,7 +128,8 @@ post_manage_menu = Window(
 	SwitchTo(
 		text=Const('Далее ➡️'),
 		id='pre_post_menu',
-		state=CreatePostStates.post_final_menu
+		state=CreatePostStates.post_final_menu,
+		on_click=insert_post_type
 	),
 	state=CreatePostStates.post_manage_menu,
 	getter=manage_menu_getter
@@ -153,6 +152,7 @@ add_media = Window(
 	I18NFormat('add-media-text'),
 	MessageInput(
 		func=input_post_media,
+		content_types=[ContentType.PHOTO, ContentType.DOCUMENT, ContentType.VIDEO]
 	),
 	Button(
 		text=Case(

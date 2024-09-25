@@ -1,5 +1,6 @@
 from aiogram import Bot
 from dishka import FromDishka
+from dishka.integrations.taskiq import inject
 
 from app.src.bot.sender.send_message import send_message
 from app.src.infrastructure.db.models import Post
@@ -8,6 +9,7 @@ from app.src.infrastructure.scheduler.broker import broker
 
 
 @broker.task
+@inject
 async def delay_post(
 	post_id: int,
 	repository: FromDishka[GeneralRepository],
@@ -21,6 +23,7 @@ async def delay_post(
 
 
 @broker.task
+@inject
 async def delay_poll(
 	post_id: int,
 	repository: FromDishka[GeneralRepository],
@@ -38,7 +41,6 @@ async def _delay(
 	repository: GeneralRepository,
 	bot: Bot
 ):
-	print(1)
 	post: Post = await repository.post.get_post_by_id(post_id=post_id)
 	async with bot:
 		await send_message(
@@ -46,3 +48,4 @@ async def _delay(
 			post=post,
 			repository=repository
 		)
+	await repository.post.message_sent(post_id=post_id)

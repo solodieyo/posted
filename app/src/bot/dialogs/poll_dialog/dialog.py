@@ -8,9 +8,9 @@ from app.src.bot.dialogs.common.buttons import BACK_TO_MANAGE_POLL_MENU
 from app.src.bot.dialogs.common.getters import (
 	create_post_getter,
 	channel_itemgetter,
-	get_post_delay_text,
 	get_calendar_state,
-	get_buttons_dates
+	get_buttons_dates,
+	get_poll_delay_text
 )
 from app.src.bot.dialogs.common.handlers import (
 	on_notification_clicked,
@@ -20,7 +20,8 @@ from app.src.bot.dialogs.common.handlers import (
 	on_date_selected,
 	on_no_confirm_user,
 	on_confirm_delay_post,
-	get_delay_confirm_info, on_delay_click
+	get_delay_confirm_info,
+	on_delay_click
 )
 from app.src.bot.dialogs.common.widgets import I18NFormat
 from app.src.bot.dialogs.create_post_dialog.getters import getter_channel_name
@@ -31,8 +32,9 @@ from app.src.bot.dialogs.poll_dialog.handlers import (
 	change_poll_tittle,
 	input_tittle_text,
 	poll_confirm,
-	input_poll_time_delay
+	input_poll_time_delay, isert_poll_type
 )
+from app.src.bot.filters.poll_options_filter import PollOptionsFilter
 from app.src.bot.states.dialog_states import AddChannelStates, PollStates
 
 create_main_menu = Window(
@@ -72,8 +74,10 @@ selected_channel_window = Window(
 	I18NFormat(
 		text='one-channel-poll',
 	),
-	Back(
-		text=Const('Выбрать другой канал')
+	SwitchTo(
+		state=PollStates.main,
+		text=Const('Выбрать другой канал'),
+		id='change_channel'
 	),
 	MessageInput(
 		func=input_tittle_text,
@@ -109,7 +113,8 @@ poll_manage_menu = Window(
 	SwitchTo(
 		text=Const('Далее ➡️'),
 		id='pre_post_menu',
-		state=PollStates.poll_final_menu
+		state=PollStates.poll_final_menu,
+		on_click=isert_poll_type
 	),
 	state=PollStates.poll_manage_menu,
 	getter=getter_poll_choices
@@ -125,10 +130,34 @@ add_poll = Window(
 	state=PollStates.change_poll_tittle
 )
 
-poll_choice_window = Window(
+poll_start_choice_window = Window(
 	I18NFormat('poll-choice-text'),
+	Const(
+		text='\n<b>Выборов должно быть больше 1</b>',
+		when=F['dialog_data']['wrong_options'].is_(True)
+	),
 	MessageInput(
 		func=input_poll_choices,
+		filter=PollOptionsFilter()
+	),
+	SwitchTo(
+		state=PollStates.selected_channel,
+		text=Const('⬅️ Назад'),
+		id='__back__'
+	),
+	state=PollStates.input_choices
+)
+
+
+poll_choice_window = Window(
+	I18NFormat('poll-choice-text'),
+	Const(
+		text='\n<b>Выборов должно быть больше 1</b>',
+		when=F['dialog_data']['wrong_options'].is_(True)
+	),
+	MessageInput(
+		func=input_poll_choices,
+		filter=PollOptionsFilter()
 	),
 	BACK_TO_MANAGE_POLL_MENU,
 	state=PollStates.change_poll_choices
@@ -185,15 +214,15 @@ delay_post_window = Window(
 			on_click=shift_left_date
 		),
 		Button(
-			text=Format('←{current_date}'),
+			text=Format('{current_date}'),
 			id='current_date',
 		),
 		Button(
-			text=Format('←{right_date}'),
+			text=Format('{right_date}→'),
 			id='right_date',
 			on_click=shift_right_date
 		),
-		when=F['show_calendar'].is_(False)
+		when=F['show_calendar'].is_(True)
 	),
 	Button(
 		text=Case(
@@ -218,7 +247,7 @@ delay_post_window = Window(
 	),
 	state=PollStates.poll_delay,
 	getter=(
-		get_post_delay_text,
+		get_poll_delay_text,
 		get_calendar_state,
 		get_buttons_dates
 	)
@@ -254,6 +283,7 @@ confirm_delay_poll = Window(
 poll_dialog = Dialog(
 	create_main_menu,
 	selected_channel_window,
+	poll_start_choice_window,
 	poll_manage_menu,
 	add_poll,
 	poll_choice_window,

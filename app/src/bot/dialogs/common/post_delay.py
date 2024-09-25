@@ -1,6 +1,7 @@
-from datetime import date, datetime
+from datetime import datetime
 
 from aiogram import Bot
+from taskiq.scheduler.created_schedule import CreatedSchedule
 from taskiq_redis import RedisScheduleSource
 
 from app.src.infrastructure.db.maker.post_maker import create_post
@@ -24,22 +25,20 @@ async def schedule_post(
 		scheduled=True,
 		scheduled_at=delay_time
 	)
-
 	await repository.post.create_post(post=post)
 
 	if post.poll_tittle:
 		await delay_poll.schedule_by_time(
 			source=redis_source,
-			time=post.scheduled_at,
+			time=delay_time,
 			post_id=post.id
 		)
 	else:
-		test = await delay_post.schedule_by_time(
+		await delay_post.schedule_by_time(
 			source=redis_source,
-			time=post.scheduled_at,
+			time=delay_time,
 			post_id=post.id,
 		)
-		print(test)
 	await bot.send_message(
 		chat_id=chat_id,
 		text=(f'✅ Публикация в канале <a href="t.me/{data["channel_username"]}">{data["channel_name"]}</a> '

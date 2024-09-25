@@ -5,7 +5,7 @@ from babel.dates import format_date
 from dishka import FromDishka
 from dishka.integrations.aiogram_dialog import inject
 
-from app.src.bot.utils.get_text import get_delay_text
+from app.src.bot.utils.get_text import get_delay_text, get_delay_poll_text
 from app.src.config.app_config import moscow_tz
 from app.src.infrastructure.db.models import User, Channel
 from app.src.infrastructure.db.repositories import GeneralRepository
@@ -61,21 +61,22 @@ async def get_post_delay_text(
 		selected_date = datetime.fromisoformat(selected_date)
 	posts = await repository.post.get_post_per_date(
 		channel_id=dialog_manager.dialog_data['channel_id'],
-		date=selected_date,
+		date=selected_date.date(),
 	)
 
 	scheduled_posts_text = ''
 	if posts:
 		for post in posts:
-			scheduled_posts_text += f'<code>{post.scheduled_at.strftime("%H:%M")}</code> {post.text[:10]}\n'
+			post_time = post.scheduled_at + timedelta(hours=3)
+			scheduled_posts_text += f'<code>{post_time.strftime("%H:%M")}</code> {post.text[:10]}\n'
 		scheduled_posts_text += '\n'
 
 	text = get_delay_text(
-			scheduled_text=scheduled_posts_text,
-			post_date=selected_date,
-			count_post=len(posts) if len(posts) >= 1 else "ни одного поста",
-			wrong_date=dialog_manager.dialog_data.get('wrong_date', False)
-		)
+		scheduled_text=scheduled_posts_text,
+		post_date=selected_date,
+		count_post=len(posts) if len(posts) >= 1 else "ни одного поста",
+		wrong_date=dialog_manager.dialog_data.get('wrong_date', False)
+	)
 	return {
 		"post_delay_text": text,
 		'wrong_date': dialog_manager.dialog_data.get('wrong_date', False),
@@ -102,4 +103,40 @@ async def get_buttons_dates(
 		"left_date": format_date(left_date, format='EEE, d MMM', locale='ru'),
 		"current_date": format_date(current_date, format='EEE, d MMM', locale='ru'),
 		"right_date": format_date(right_date, format='EEE, d MMM', locale='ru')
+	}
+
+
+@inject
+async def get_poll_delay_text(
+	dialog_manager: DialogManager,
+	repository: FromDishka[GeneralRepository],
+	**_
+):
+	shift_days = dialog_manager.dialog_data.get('shifted_date', 0)
+	selected_date = dialog_manager.dialog_data.get('selected_date')
+	if not selected_date:
+		selected_date = datetime.now(tz=moscow_tz) + timedelta(days=shift_days)
+	else:
+		selected_date = datetime.fromisoformat(selected_date)
+	posts = await repository.post.get_poll_per_date(
+		channel_id=dialog_manager.dialog_data['channel_id'],
+		date=selected_date.date(),
+	)
+
+	scheduled_posts_text = ''
+	if posts:
+		for post in posts:
+			post_time = post.scheduled_at + timedelta(hours=3)
+			scheduled_posts_text += f'<code>{post_time.strftime("%H:%M")}</code> {post.poll_tittle}\n'
+		scheduled_posts_text += '\n'
+
+	text = get_delay_poll_text(
+		scheduled_text=scheduled_posts_text,
+		post_date=selected_date,
+		count_post=len(posts) if len(posts) >= 1 else "ни одного поста",
+		wrong_date=dialog_manager.dialog_data.get('wrong_date', False)
+	)
+	return {
+		"post_delay_text": text,
+		'wrong_date': dialog_manager.dialog_data.get('wrong_date', False),
 	}

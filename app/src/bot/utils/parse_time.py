@@ -1,5 +1,7 @@
 from datetime import date, datetime
 
+from app.src.config.app_config import moscow_tz
+
 FORMATS = [
 	"%H:%M",
 	"%H %M",
@@ -16,8 +18,10 @@ def parse_user_time(default_date: date, time_string: str) -> date | None:
 			if "%d.%m.%Y" in fmt or "%d.%m" in fmt:
 				return parsed_datetime
 			else:
-				return datetime.combine(default_date, parsed_datetime.time())
-		except ValueError:
+				new_date = datetime.combine(default_date, parsed_datetime.time())
+				result = moscow_tz.localize(new_date)
+				return result
+		except ValueError as e:
 			continue
 
 	return None

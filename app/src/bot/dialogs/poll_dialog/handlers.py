@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 
 from aiogram import Bot
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import DialogManager, ShowMode
 from aiogram_dialog.widgets.input import MessageInput
 from dishka import FromDishka
@@ -9,9 +9,11 @@ from dishka.integrations.aiogram_dialog import inject
 from taskiq_redis import RedisScheduleSource
 
 from app.src.bot.dialogs.common.post_delay import schedule_post
+from app.src.bot.enums.message_type import MessageType
 from app.src.bot.sender.send_message import send_message
 from app.src.bot.states.dialog_states import PollStates
 from app.src.bot.utils.parse_time import parse_user_time
+from app.src.config.app_config import moscow_tz
 from app.src.infrastructure.db.maker.post_maker import create_post
 from app.src.infrastructure.db.models import User
 from app.src.infrastructure.db.repositories import GeneralRepository
@@ -47,7 +49,7 @@ async def input_tittle_text(
 		return
 	dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
 	dialog_manager.dialog_data['poll_tittle'] = message.text
-	await dialog_manager.switch_to(state=PollStates.change_poll_choices)
+	await dialog_manager.switch_to(state=PollStates.input_choices)
 
 
 async def change_poll_tittle(message: Message, __, dialog_manager: DialogManager):
@@ -64,7 +66,7 @@ async def input_poll_choices(message: Message, __, dialog_manager: DialogManager
 
 @inject
 async def poll_confirm(
-	_,
+	callback: CallbackQuery,
 	__,
 	dialog_manager: DialogManager,
 	repository: FromDishka[GeneralRepository],
@@ -76,6 +78,9 @@ async def poll_confirm(
 	)
 	await repository.post.create_post(post=post)
 	await send_message(bot=bot, repository=repository, post=post)
+	await dialog_manager.done()
+	await callback.message.delete()
+	await bot.send_message(chat_id=callback.from_user.id, text='✅ Голосование опубликовано')
 
 
 @inject
@@ -91,8 +96,11 @@ async def input_poll_time_delay(
 	user: User = dialog_manager.middleware_data['user']
 
 	shifted_date = dialog_manager.dialog_data.get('shifted_date', 0)
-	selected_date = dialog_manager.dialog_data.get('selected_date', datetime.now() + timedelta(days=shifted_date))
-
+	selected_date = dialog_manager.dialog_data.get('selected_date')
+	if not selected_date:
+		selected_date = datetime.now(tz=moscow_tz) + timedelta(days=shifted_date)
+	else:
+		selected_date = datetime.fromisoformat(selected_date)
 	parsed_date = parse_user_time(
 		default_date=selected_date,
 		time_string=message.text
@@ -100,7 +108,7 @@ async def input_poll_time_delay(
 
 	if parsed_date:
 		dialog_manager.dialog_data['wrong_date'] = False
-		dialog_manager.dialog_data['selected_date'] = parsed_date
+		dialog_manager.dialog_data['selected_date'] = parsed_date.isoformat()
 		if user.skip_confirm_post:
 			await schedule_post(
 				data=dialog_manager.dialog_data,
@@ -117,3 +125,11 @@ async def input_poll_time_delay(
 			await dialog_manager.switch_to(state=PollStates.poll_delay_confirm)
 			return
 	dialog_manager.dialog_data['wrong_date'] = True
+
+
+async def isert_poll_type(
+	_,
+	__,
+	dialog_manager: DialogManager
+):
+	dialog_manager.dialog_data['post_type'] = MessageType.poll

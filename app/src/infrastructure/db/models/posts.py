@@ -5,6 +5,7 @@ from aiogram.enums import ContentType
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.src.bot.enums.message_type import MessageType
 from app.src.infrastructure.db.models import Int64, Int16, Base
 
 
@@ -27,3 +28,4 @@ class Post(Base):
 	notification: Mapped[bool] = mapped_column(default=True)
 	hide_media: Mapped[bool] = mapped_column(default=False)
 	sent: Mapped[bool] = mapped_column(default=False)
+	post_type: Mapped[MessageType]

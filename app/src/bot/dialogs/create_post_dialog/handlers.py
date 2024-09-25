@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta, tzinfo
 
 import pytz
 from aiogram import Bot
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram_dialog import DialogManager, ShowMode
 from aiogram_dialog.widgets.input import MessageInput
 from dishka import FromDishka
@@ -10,6 +10,7 @@ from dishka.integrations.aiogram_dialog import inject
 from taskiq_redis import RedisScheduleSource
 
 from app.src.bot.dialogs.common.post_delay import schedule_post
+from app.src.bot.enums.message_type import MessageType
 from app.src.bot.sender.send_message import send_message
 from app.src.bot.states.dialog_states import CreatePostStates
 from app.src.bot.utils.message_misc import get_file_info, FileInfo
@@ -103,7 +104,7 @@ async def input_emoji_buttons(message: Message, __, dialog_manager: DialogManage
 
 @inject
 async def post_confirm(
-	_,
+	callback: CallbackQuery,
 	__,
 	dialog_manager: DialogManager,
 	repository: FromDishka[GeneralRepository],
@@ -115,6 +116,9 @@ async def post_confirm(
 	)
 	await repository.post.create_post(post=post)
 	await send_message(bot=bot, repository=repository, post=post)
+	await dialog_manager.done()
+	await callback.message.delete()
+	await bot.send_message(chat_id=callback.from_user.id, text='✅ Пост опубликован')
 
 
 @inject
@@ -159,3 +163,11 @@ async def input_time_delay(
 			await dialog_manager.switch_to(state=CreatePostStates.post_delay_confirm)
 			return
 	dialog_manager.dialog_data['wrong_date'] = True
+
+
+async def insert_post_type(
+	_,
+	__,
+	dialog_manager: DialogManager
+):
+	dialog_manager.dialog_data['post_type'] = MessageType.message

@@ -13,7 +13,7 @@ redis_async_result = RedisAsyncResultBackend(
 )
 
 broker.with_result_backend(redis_async_result)
-redis_source = RedisScheduleSource('redis://localhost:6379/0')
+redis_source = RedisScheduleSource('redis://localhost:6379/1')
 scheduler = TaskiqScheduler(broker, [redis_source])
 
 

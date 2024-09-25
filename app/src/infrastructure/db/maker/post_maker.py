@@ -16,7 +16,7 @@ def create_post(
 		owner_user_id=user_id,
 		text=data.get('post_text'),
 		notification=data.get('notification', False),
-		media_id=data.get('media_id', None),
+		media_id=data.get('media_file_id', None),
 		url_buttons=data.get('url_buttons', None),
 		emoji_buttons=data.get('emoji_buttons', None),
 		poll_tittle=data.get('poll_tittle', None),
@@ -25,5 +25,6 @@ def create_post(
 		scheduled_at=scheduled_at,
 		hide_media=data.get('hide_media', False),
 		media_content_type=data.get('media_content_type', None),
-		sent=sent
+		sent=sent,
+		post_type=data['post_type']
 	)
