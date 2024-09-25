@@ -12,18 +12,20 @@ class ReactionsRepository(BaseRepository):
 		post_id: int,
 		channel_id: int
 	):
-		reactions = []
-		for emoji in emoji_buttons.split(','):
-			reaction = Reaction(
-				emoji=emoji,
-				post_id=post_id,
-				channel_id=channel_id
-			)
-			self.session.add(reaction)
-			await self.session.flush()
-			reactions.append(reaction)
-		await self.session.commit()
-		return reactions
+		if emoji_buttons:
+			reactions = []
+			for emoji in emoji_buttons.split(','):
+				reaction = Reaction(
+					emoji=emoji,
+					post_id=post_id,
+					channel_id=channel_id
+				)
+				self.session.add(reaction)
+				await self.session.flush()
+				reactions.append(reaction)
+			await self.session.commit()
+			return reactions
+		return None
 
 	async def add_user_reaction(
 		self,
@@ -107,6 +109,6 @@ class ReactionsRepository(BaseRepository):
 
 	async def get_post_reactions(self, post_id: int):
 		result = await self.session.scalars(
-			select(Reaction).where(Reaction.post_id == post_id)
+			select(Reaction).where(Reaction.post_id == post_id).group_by(Reaction.id)
 		)
 		return result

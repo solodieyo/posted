@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 
+import pytz
 from sqlalchemy import URL
-
 
 LOCALES_PATH = r'C:\Users\solo\PycharmProjects\posted\app\translations'
 CONFIG_PATH = r"config.toml"
+moscow_tz = pytz.timezone('Europe/Moscow')
 
 
 @dataclass

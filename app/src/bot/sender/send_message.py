@@ -32,7 +32,9 @@ async def send_message(
 				media_id=post.media_id,
 				media_content_type=post.media_content_type,
 				hide_media=post.hide_media,
-				disable_notification=post.notification
+				disable_notification=post.notification,
+				poll_tittle=post.poll_tittle,
+				poll_options=post.poll_options
 			)
 		)
 
@@ -41,7 +43,9 @@ async def send_message(
 
 
 async def _send_message(bot: Bot, new_message: NewMessage) -> Message:
-	if new_message.media_id:
+	if new_message.poll_tittle:
+		return await _send_poll(bot, new_message)
+	elif new_message.media_id:
 		return await _send_media(bot, new_message)
 	else:
 		return await _send_text(bot, new_message)
@@ -55,18 +59,15 @@ async def _send_text(bot: Bot, new_message: NewMessage) -> Message:
 		reply_markup=new_message.reply_markup,
 		parse_mode=new_message.parse_mode,
 	)
-
-	if new_message.poll_tittle:
-		await _send_poll(bot, new_message)
-
 	return message
 
 
 async def _send_poll(bot: Bot, new_message: NewMessage):
-	await bot.send_poll(
+	return await bot.send_poll(
 		chat_id=new_message.chat_id,
 		question=new_message.poll_tittle,
-		options=new_message.poll_options
+		options=new_message.poll_options.split(','),
+		disable_notification=new_message.disable_notification,
 	)
 
 
@@ -82,8 +83,4 @@ async def _send_media(bot: Bot, new_message: NewMessage) -> Message:
 		parse_mode=new_message.parse_mode,
 		has_spoiler=new_message.hide_media
 	)
-
-	if new_message.poll_tittle:
-		await _send_poll(bot, new_message)
-
 	return message

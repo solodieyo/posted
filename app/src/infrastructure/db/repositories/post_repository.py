@@ -20,7 +20,7 @@ class PostRepository(BaseRepository):
 				)
 			)
 		)
-		return posts
+		return posts.all()
 
 	async def get_post_by_id(self, post_id):
 		post: Post = await self.session.scalar(

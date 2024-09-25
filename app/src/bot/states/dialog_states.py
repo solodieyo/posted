@@ -26,3 +26,17 @@ class AddChannelStates(StatesGroup):
 	no_channel_yet = State()
 	add_channel = State()
 	channel_linked = State()
+
+
+class PollStates(StatesGroup):
+	main = State()
+	selected_channel = State()
+	add_poll = State()
+	input_choices = State()
+	poll_final_menu = State()
+	poll_confirm = State()
+	poll_delay = State()
+	change_poll_tittle = State()
+	change_poll_choices = State()
+	poll_manage_menu = State()
+	poll_delay_confirm = State()

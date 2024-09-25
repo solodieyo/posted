@@ -1,11 +1,11 @@
-from datetime import date
+from datetime import date, datetime
 
 from aiogram import Bot
 from taskiq_redis import RedisScheduleSource
 
 from app.src.infrastructure.db.maker.post_maker import create_post
 from app.src.infrastructure.db.repositories import GeneralRepository
-from app.src.infrastructure.scheduler.tasks import delay_post
+from app.src.infrastructure.scheduler.tasks import delay_post, delay_poll
 
 
 async def schedule_post(
@@ -13,27 +13,35 @@ async def schedule_post(
 	repository: GeneralRepository,
 	data: dict,
 	user_id: int,
-	bot: Bot
-
+	bot: Bot,
+	chat_id: int
 ):
+	delay_time = datetime.fromisoformat(data['selected_date'])
 	post = create_post(
 		data=data,
 		user_id=user_id,
 		sent=False,
 		scheduled=True,
-		scheduled_at=data['selected_date']
+		scheduled_at=delay_time
 	)
 
 	await repository.post.create_post(post=post)
 
-	await delay_post.schedule_by_time(
-		redis_source=redis_source,
-		scheduled_at=post.scheduled_at,
-		post_id=post.id,
-	)
-
+	if post.poll_tittle:
+		await delay_poll.schedule_by_time(
+			source=redis_source,
+			time=post.scheduled_at,
+			post_id=post.id
+		)
+	else:
+		test = await delay_post.schedule_by_time(
+			source=redis_source,
+			time=post.scheduled_at,
+			post_id=post.id,
+		)
+		print(test)
 	await bot.send_message(
-		chat_id=post.channel_id,
-		text=(f'✅ Публикация в канале "<a href="t.me/{data["channel_username"]}">{data["channel_title"]}</a> '
-		f'<code>{post.scheduled_at.strftime("%H:%M")}</code>')
+		chat_id=chat_id,
+		text=(f'✅ Публикация в канале <a href="t.me/{data["channel_username"]}">{data["channel_name"]}</a> '
+			  f'Запланирована на  -  <code>{post.scheduled_at.strftime("%H:%M")}</code>')
 	)

@@ -12,7 +12,7 @@ router = Router()
 async def start_command(message: Message):
 	await message.delete()
 	await message.answer(
-		text='<b>Создание поста</b> - /create\n\n'
-			 '<b>Создание голосования</b> - /poll\n',
+		text='<b>Создание поста</b> - /create_post\n\n'
+			 '<b>Создание голосования</b> - /create_poll\n',
 	)
 

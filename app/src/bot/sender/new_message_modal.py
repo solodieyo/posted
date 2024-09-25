@@ -15,6 +15,6 @@ class NewMessage:
 	media_id: Optional[str] = None
 	media_content_type: Optional[str] = None
 	poll_tittle: Optional[str] = None
-	poll_options: Optional[list[str]] = None
+	poll_options: Optional[str] = None
 	disable_notification: Optional[bool] = True
 	hide_media: Optional[bool] = False

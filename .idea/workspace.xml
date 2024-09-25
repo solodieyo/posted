@@ -5,13 +5,38 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f0aef7e7-d886-411b-8468-ab4843aab4e1" name="Changes" comment="better send_message">
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/bot/dialogs/common/getters.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/bot/dialogs/common/handlers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/bot/dialogs/poll_dialog/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/bot/dialogs/poll_dialog/dialog.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/bot/dialogs/poll_dialog/getters.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/bot/dialogs/poll_dialog/handlers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/bot/handlers/poll.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/factory/set_commands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/bot/dialogs/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/bot/dialogs/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/bot/dialogs/common/buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/bot/dialogs/common/buttons.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/bot/dialogs/common/post_delay.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/bot/dialogs/common/post_delay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/bot/dialogs/create_post_dialog/dialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/bot/dialogs/create_post_dialog/dialog.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/bot/dialogs/create_post_dialog/getters.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/bot/dialogs/create_post_dialog/getters.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/bot/dialogs/create_post_dialog/handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/bot/dialogs/create_post_dialog/handlers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.toml" beforeDir="false" afterPath="$PROJECT_DIR$/config.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/bot/handlers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/bot/handlers/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/bot/handlers/create.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/bot/handlers/create.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/bot/handlers/start.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/bot/handlers/start.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/bot/sender/new_message_modal.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/bot/sender/new_message_modal.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/bot/sender/send_message.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/bot/sender/send_message.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/bot/states/dialog_states.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/bot/states/dialog_states.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/bot/utils/get_text.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/bot/utils/get_text.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/config/app_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/config/app_config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/infrastructure/db/maker/post_maker.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/infrastructure/db/maker/post_maker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/infrastructure/db/models/posts.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/infrastructure/db/models/posts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/infrastructure/db/repositories/post_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/infrastructure/db/repositories/post_repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/infrastructure/db/repositories/reactions_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/infrastructure/db/repositories/reactions_repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/infrastructure/db/repositories/user_repository.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/infrastructure/db/repositories/user_repository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/infrastructure/scheduler/broker.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/infrastructure/scheduler/broker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/infrastructure/scheduler/tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/infrastructure/scheduler/tasks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/translations/ru/texts.ftl" beforeDir="false" afterPath="$PROJECT_DIR$/app/translations/ru/texts.ftl" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,6 +166,7 @@
       <workItem from="1727128051554" duration="6063000" />
       <workItem from="1727138872365" duration="73000" />
       <workItem from="1727138953768" duration="255000" />
+      <workItem from="1727196725686" duration="18993000" />
     </task>
     <task id="LOCAL-00001" summary="test">
       <option name="closed" value="true" />
@@ -182,7 +208,15 @@
       <option name="project" value="LOCAL" />
       <updated>1727139150947</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="better send_message">
+      <option name="closed" value="true" />
+      <created>1727196745352</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1727196745352</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -216,7 +250,7 @@
     <option name="LAST_COMMIT_MESSAGE" value="better send_message" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/posted$main.coverage" NAME="main Coverage Results" MODIFIED="1727138523849" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
+    <SUITE FILE_PATH="coverage/posted$main.coverage" NAME="main Coverage Results" MODIFIED="1727219772895" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/" />
     <SUITE FILE_PATH="coverage/posted$test.coverage" NAME="test Coverage Results" MODIFIED="1726857884546" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

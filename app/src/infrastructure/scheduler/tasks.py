@@ -13,6 +13,32 @@ async def delay_post(
 	repository: FromDishka[GeneralRepository],
 	bot: FromDishka[Bot]
 ):
+	await _delay(
+		post_id=post_id,
+		repository=repository,
+		bot=bot
+	)
+
+
+@broker.task
+async def delay_poll(
+	post_id: int,
+	repository: FromDishka[GeneralRepository],
+	bot: FromDishka[Bot]
+):
+	await _delay(
+		post_id=post_id,
+		repository=repository,
+		bot=bot
+	)
+
+
+async def _delay(
+	post_id: int,
+	repository: GeneralRepository,
+	bot: Bot
+):
+	print(1)
 	post: Post = await repository.post.get_post_by_id(post_id=post_id)
 	async with bot:
 		await send_message(

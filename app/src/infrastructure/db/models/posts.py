@@ -15,7 +15,7 @@ class Post(Base):
 	channel_id: Mapped[Int16] = mapped_column(ForeignKey('channels.id'), nullable=False)
 	channel_tg_id: Mapped[Int64] = mapped_column(nullable=False)
 	owner_user_id: Mapped[Int64] = mapped_column(ForeignKey('users.id'))
-	text: Mapped[str] = mapped_column(nullable=False)
+	text: Mapped[str] = mapped_column(nullable=True)
 	media_id: Mapped[Optional[str]] = mapped_column(nullable=True)
 	media_content_type: Mapped[Optional[ContentType]] = mapped_column(nullable=True)
 	url_buttons: Mapped[Optional[str]] = mapped_column(nullable=True)

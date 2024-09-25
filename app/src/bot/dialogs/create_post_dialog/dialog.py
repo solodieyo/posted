@@ -5,35 +5,38 @@ from aiogram_dialog.widgets.kbd import Button, Start, Group, Select, Back, Row, 
 from aiogram_dialog.widgets.text import Format, Const, Case
 
 from app.src.bot.dialogs.common.buttons import BACK_TO_MANAGE_POST_MENU
+from app.src.bot.dialogs.common.getters import (
+	create_post_getter,
+	channel_itemgetter,
+	manage_menu_getter,
+	get_post_delay_text,
+	get_calendar_state,
+	get_buttons_dates
+)
+from app.src.bot.dialogs.common.handlers import (
+	on_notification_clicked,
+	shift_left_date,
+	shift_right_date,
+	on_date_selected,
+	on_show_calendar,
+	on_no_confirm_user,
+	on_confirm_delay_post, get_delay_confirm_info, on_delay_click
+)
 from app.src.bot.dialogs.common.widgets import I18NFormat
 from app.src.bot.dialogs.create_post_dialog.getters import (
-	channel_itemgetter,
-	create_post_getter,
-	manage_menu_getter,
 	media_menu_getter,
-	get_calendar_state,
-	get_post_delay_text,
-	get_buttons_dates,
-	get_delay_confirm_info, getter_channel_name
+	getter_channel_name
 )
 from app.src.bot.dialogs.create_post_dialog.handlers import (
 	on_select_channel,
 	input_post_text,
-	on_notification_clicked,
 	input_post_media,
 	on_hide_media,
 	on_delete_media,
 	input_url_buttons,
 	input_emoji_buttons,
-	input_poll_tittle,
-	input_poll_choices,
-	on_show_calendar,
-	on_date_selected,
-	shift_right_date,
-	shift_left_date,
 	input_time_delay,
-	on_no_confirm_user,
-	on_confirm_delay_post, post_confirm,
+	post_confirm,
 )
 from app.src.bot.states.dialog_states import CreatePostStates, AddChannelStates
 
@@ -192,23 +195,6 @@ emoji_buttons = Window(
 	state=CreatePostStates.emoji_buttons
 )
 
-add_poll = Window(
-	I18NFormat('add-poll-text'),
-	MessageInput(
-		func=input_poll_tittle,
-	),
-	BACK_TO_MANAGE_POST_MENU,
-	state=CreatePostStates.add_poll
-)
-
-poll_choice_window = Window(
-	I18NFormat('poll-choice-text'),
-	MessageInput(
-		func=input_poll_choices,
-	),
-	BACK_TO_MANAGE_POST_MENU,
-	state=CreatePostStates.poll_choice
-)
 
 post_final_menu = Window(
 	I18NFormat('post-final-text'),
@@ -216,7 +202,8 @@ post_final_menu = Window(
 		SwitchTo(
 			text=Const('Отложить'),
 			id='post_delay',
-			state=CreatePostStates.post_delay
+			state=CreatePostStates.post_delay,
+			on_click=on_delay_click
 		),
 		SwitchTo(
 			text=Const('Опубликовать'),
@@ -247,11 +234,6 @@ confirm_post = Window(
 delay_post_window = Window(
 	Format(
 		text='{post_delay_text}',
-		when=F['wrong_date'].is_(False)
-	),
-	Format(
-		text='{wrong_date_text}',
-		when=F['wrong_date'].is_(True)
 	),
 	MessageInput(
 		func=input_time_delay,
@@ -263,15 +245,15 @@ delay_post_window = Window(
 			on_click=shift_left_date
 		),
 		Button(
-			text=Format('←{current_date}'),
+			text=Format('{current_date}'),
 			id='current_date',
 		),
 		Button(
-			text=Format('←{right_date}'),
+			text=Format('{right_date}→'),
 			id='right_date',
 			on_click=shift_right_date
 		),
-		when=F['show_calendar'].is_(False)
+		when=F['show_calendar'].is_(True)
 	),
 	Button(
 		text=Case(
@@ -337,8 +319,6 @@ create_post_dialog = Dialog(
 	add_media,
 	url_buttons,
 	emoji_buttons,
-	add_poll,
-	poll_choice_window,
 	post_final_menu,
 	confirm_post,
 	delay_post_window,

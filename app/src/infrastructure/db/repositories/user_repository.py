@@ -1,6 +1,6 @@
 from cgitb import reset
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from app.src.infrastructure.db.models import User
 from app.src.infrastructure.db.repositories import BaseRepository
@@ -26,3 +26,11 @@ class UserRepository(BaseRepository):
 			await self.session.commit()
 
 		return user
+
+	async def skip_confirm_post(self, user_id: int):
+		await self.session.execute(
+			update(User)
+			.where(User.id == user_id)
+			.values(skip_confirm_post=True)
+		)
+		await self.session.commit()
